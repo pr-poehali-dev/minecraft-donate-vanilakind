@@ -148,11 +148,14 @@ function Counter({ value, suffix = "" }: { value: number; suffix?: string }) {
 
 type PayModal = { priv: typeof privileges[0] } | null;
 
+const NOTIFY_URL = "https://functions.poehali.dev/d51daf2f-e0a9-4f6d-9d4b-8e7b97d6ff1d";
+
 function PaymentModal({ modal, onClose }: { modal: PayModal; onClose: () => void }) {
   const [step, setStep] = useState<"details" | "confirm" | "done">("details");
   const [nick, setNick] = useState("");
   const [copiedField, setCopiedField] = useState<string | null>(null);
   const [proofText, setProofText] = useState("");
+  const [sending, setSending] = useState(false);
 
   const copyField = (val: string, key: string) => {
     navigator.clipboard.writeText(val);
@@ -346,10 +349,27 @@ function PaymentModal({ modal, onClose }: { modal: PayModal; onClose: () => void
                 Назад
               </button>
               <button
-                onClick={() => setStep("done")}
-                className="flex-1 py-3 rounded-xl font-bold text-sm neon-btn"
+                onClick={async () => {
+                  setSending(true);
+                  try {
+                    await fetch(NOTIFY_URL, {
+                      method: "POST",
+                      headers: { "Content-Type": "application/json" },
+                      body: JSON.stringify({
+                        nick,
+                        privilege: modal.priv.name,
+                        price: modal.priv.price,
+                        proof: proofText,
+                      }),
+                    });
+                  } catch (e) { console.error(e); }
+                  setSending(false);
+                  setStep("done");
+                }}
+                disabled={sending}
+                className="flex-1 py-3 rounded-xl font-bold text-sm neon-btn flex items-center justify-center gap-2"
               >
-                Отправить заявку
+                {sending ? <><Icon name="Loader" size={15} className="animate-spin" />Отправка...</> : "Отправить заявку"}
               </button>
             </div>
           </div>

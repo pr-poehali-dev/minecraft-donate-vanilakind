@@ -1,0 +1,22 @@
+{
+  "tests": [
+    {
+      "name": "OPTIONS preflight",
+      "method": "OPTIONS",
+      "path": "/",
+      "expectedStatus": 200
+    },
+    {
+      "name": "Send notification",
+      "method": "POST",
+      "path": "/",
+      "body": {
+        "nick": "TestPlayer",
+        "privilege": "⚡ Starter",
+        "price": "99₽",
+        "proof": "тест"
+      },
+      "expectedStatus": 200
+    }
+  ]
+}
