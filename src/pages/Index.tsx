@@ -1,14 +1,549 @@
-// Update this page (the content is just a fallback if you fail to update the page)
+import { useState, useEffect, useRef } from "react";
+import Icon from "@/components/ui/icon";
 
-const Index = () => {
+const HERO_IMG = "https://cdn.poehali.dev/projects/81ac8d06-fd37-46e6-b119-fc4ab95e812c/files/9c6ce094-d6bd-466c-9414-1932923a24fb.jpg";
+const CARD_IMG = "https://cdn.poehali.dev/projects/81ac8d06-fd37-46e6-b119-fc4ab95e812c/files/922ab60c-9ccd-401a-af28-422e8a8273c0.jpg";
+
+const SERVER_IP = "play.vanilakind.ru";
+
+const privileges = [
+  {
+    id: 1,
+    name: "⚡ Starter",
+    price: "99₽",
+    badge: null,
+    perks: [
+      "Цветной ник в чате",
+      "2 домашних точки",
+      "Приоритетный вход",
+      "Префикс [Starter]",
+    ],
+  },
+  {
+    id: 2,
+    name: "🔥 Pro",
+    price: "249₽",
+    badge: "Популярный",
+    perks: [
+      "Всё из Starter",
+      "5 домашних точек",
+      "Fly в мирном режиме",
+      "Кит раз в 3 дня",
+      "Доступ к /back",
+    ],
+  },
+  {
+    id: 3,
+    name: "💎 VIP",
+    price: "499₽",
+    badge: null,
+    perks: [
+      "Всё из Pro",
+      "15 домашних точек",
+      "Fly везде",
+      "Кит раз в сутки",
+      "Частная ферма мобов",
+      "Ник любым цветом",
+    ],
+  },
+  {
+    id: 4,
+    name: "👑 Legend",
+    price: "999₽",
+    badge: "Топ",
+    perks: [
+      "Всё из VIP",
+      "Безлимит точек",
+      "Творческий режим",
+      "Кит каждые 12 ч",
+      "Спец. зона с ресурсами",
+      "Значок в Discord",
+      "Персональный варп",
+    ],
+  },
+];
+
+const faqs = [
+  {
+    q: "Как быстро зачисляется привилегия?",
+    a: "Автоматически в течение 1-5 минут после подтверждения оплаты. Зайдите на сервер — привилегия уже будет активна.",
+  },
+  {
+    q: "На сколько времени даётся привилегия?",
+    a: "Все привилегии выдаются на 30 дней с момента оплаты. По истечении срока вы можете продлить или выбрать другой тариф.",
+  },
+  {
+    q: "Можно ли сменить привилегию?",
+    a: "Да, при покупке более высокого тарифа оставшиеся дни текущей привилегии засчитываются.",
+  },
+  {
+    q: "Что если привилегия не пришла?",
+    a: "Свяжитесь с администрацией в Discord или напишите нам. Разберёмся в течение 30 минут.",
+  },
+  {
+    q: "Возможен ли возврат?",
+    a: "Да, в течение 24 часов с момента покупки, если привилегия не использовалась. Пишите в поддержку.",
+  },
+];
+
+const topDonators = [
+  { name: "Steve_King", amount: "4 820₽", rank: "👑 Legend", avatar: "👾" },
+  { name: "DiamondGirl", amount: "3 500₽", rank: "💎 VIP", avatar: "💎" },
+  { name: "CreeperBoss", amount: "2 100₽", rank: "🔥 Pro", avatar: "🔥" },
+  { name: "NightWalker", amount: "1 750₽", rank: "💎 VIP", avatar: "🌙" },
+  { name: "SkyBuilder", amount: "1 200₽", rank: "🔥 Pro", avatar: "🏗️" },
+];
+
+function Particle({ style }: { style: React.CSSProperties }) {
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100">
-      <div className="text-center">
-        <h1 className="text-4xl font-bold mb-4 color-black text-black">Добро пожаловать!</h1>
-        <p className="text-xl text-gray-600">тут будет отображаться ваш проект</p>
-      </div>
+    <div
+      className="absolute w-1 h-1 rounded-full bg-emerald-400 animate-float-particle"
+      style={style}
+    />
+  );
+}
+
+function Counter({ value, suffix = "" }: { value: number; suffix?: string }) {
+  const [count, setCount] = useState(0);
+  const ref = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          let start = 0;
+          const end = value;
+          const duration = 1500;
+          const step = (end / duration) * 16;
+          const timer = setInterval(() => {
+            start += step;
+            if (start >= end) {
+              setCount(end);
+              clearInterval(timer);
+            } else {
+              setCount(Math.floor(start));
+            }
+          }, 16);
+        }
+      },
+      { threshold: 0.5 }
+    );
+    if (ref.current) observer.observe(ref.current);
+    return () => observer.disconnect();
+  }, [value]);
+
+  return (
+    <div ref={ref} className="text-4xl font-black neon-text" style={{ fontFamily: "Montserrat, sans-serif" }}>
+      {count.toLocaleString()}{suffix}
     </div>
   );
-};
+}
 
-export default Index;
+export default function Index() {
+  const [activeSection, setActiveSection] = useState("home");
+  const [openFaq, setOpenFaq] = useState<number | null>(null);
+  const [copied, setCopied] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
+  const scrollTo = (id: string) => {
+    setMobileMenuOpen(false);
+    const el = document.getElementById(id);
+    if (el) el.scrollIntoView({ behavior: "smooth" });
+    setActiveSection(id);
+  };
+
+  const copyIP = () => {
+    navigator.clipboard.writeText(SERVER_IP);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
+
+  const particles = Array.from({ length: 18 }, (_, i) => ({
+    left: `${(i * 5.5 + 3) % 100}%`,
+    top: `${(i * 7.3 + 10) % 100}%`,
+    animationDelay: `${(i * 0.3) % 4}s`,
+    animationDuration: `${3 + (i % 3)}s`,
+    opacity: 0.2 + (i % 5) * 0.1,
+  }));
+
+  return (
+    <div className="min-h-screen bg-background text-foreground">
+      {/* NAV */}
+      <nav className="fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-6 py-4 backdrop-blur-xl bg-black/40 border-b border-white/5">
+        <div className="flex items-center gap-2">
+          <span className="text-2xl">⛏️</span>
+          <span className="font-black text-xl tracking-tight" style={{ fontFamily: "Montserrat, sans-serif" }}>
+            Vanila<span className="neon-text">Kind</span>
+          </span>
+        </div>
+
+        <div className="hidden md:flex items-center gap-1">
+          {[
+            { id: "home", label: "Главная" },
+            { id: "privileges", label: "Донат" },
+            { id: "rating", label: "Рейтинг" },
+            { id: "about", label: "О сервере" },
+            { id: "faq", label: "FAQ" },
+          ].map((item) => (
+            <button
+              key={item.id}
+              onClick={() => scrollTo(item.id)}
+              className={`px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
+                activeSection === item.id
+                  ? "text-emerald-400 bg-emerald-400/10"
+                  : "text-white/60 hover:text-white hover:bg-white/5"
+              }`}
+            >
+              {item.label}
+            </button>
+          ))}
+        </div>
+
+        <div className="flex items-center gap-3">
+          <button
+            onClick={copyIP}
+            className="hidden md:flex items-center gap-2 px-4 py-2 rounded-lg neon-border text-sm font-mono text-emerald-400 hover:bg-emerald-400/10 transition-all duration-200"
+          >
+            <Icon name="Server" size={14} />
+            {copied ? "Скопировано!" : SERVER_IP}
+          </button>
+          <button
+            className="md:hidden text-white/60 hover:text-white"
+            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+          >
+            <Icon name={mobileMenuOpen ? "X" : "Menu"} size={22} />
+          </button>
+        </div>
+      </nav>
+
+      {/* Mobile Menu */}
+      {mobileMenuOpen && (
+        <div className="fixed inset-0 z-40 pt-20 bg-black/95 backdrop-blur-xl flex flex-col items-center gap-6 p-6">
+          {[
+            { id: "home", label: "Главная" },
+            { id: "privileges", label: "Донат" },
+            { id: "rating", label: "Рейтинг" },
+            { id: "about", label: "О сервере" },
+            { id: "faq", label: "FAQ" },
+          ].map((item) => (
+            <button
+              key={item.id}
+              onClick={() => scrollTo(item.id)}
+              className="text-2xl font-bold text-white/70 hover:text-emerald-400 transition-colors"
+            >
+              {item.label}
+            </button>
+          ))}
+          <button
+            onClick={copyIP}
+            className="mt-4 flex items-center gap-2 px-6 py-3 rounded-xl neon-border text-emerald-400 font-mono"
+          >
+            <Icon name="Copy" size={16} />
+            {SERVER_IP}
+          </button>
+        </div>
+      )}
+
+      {/* HERO */}
+      <section id="home" className="relative min-h-screen flex items-center justify-center overflow-hidden pt-16">
+        <div className="absolute inset-0">
+          <img src={HERO_IMG} alt="VanilaKind" className="w-full h-full object-cover opacity-25" />
+          <div className="absolute inset-0 bg-gradient-to-b from-background/60 via-background/40 to-background" />
+          <div className="absolute inset-0 grid-bg" />
+        </div>
+
+        <div className="absolute inset-0 pointer-events-none">
+          {particles.map((p, i) => (
+            <Particle key={i} style={{ left: p.left, top: p.top, animationDelay: p.animationDelay, animationDuration: p.animationDuration, opacity: p.opacity }} />
+          ))}
+        </div>
+
+        <div className="relative z-10 text-center px-6 max-w-5xl mx-auto">
+          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full neon-border text-emerald-400 text-sm font-medium mb-8 animate-slide-up">
+            <span className="w-2 h-2 bg-emerald-400 rounded-full animate-pulse" />
+            Сервер онлайн · 247 игроков
+          </div>
+
+          <h1
+            className="text-6xl md:text-8xl font-black mb-6 leading-none animate-slide-up"
+            style={{ fontFamily: "Montserrat, sans-serif", animationDelay: "0.1s" }}
+          >
+            Vanila<span className="neon-text">Kind</span>
+          </h1>
+
+          <p className="text-xl md:text-2xl text-white/60 mb-4 animate-slide-up" style={{ animationDelay: "0.2s" }}>
+            Ванильный Minecraft с душой
+          </p>
+          <p className="text-white/40 mb-12 max-w-lg mx-auto animate-slide-up" style={{ animationDelay: "0.3s" }}>
+            Получи привилегию и открой новые возможности на лучшем ванильном сервере
+          </p>
+
+          <div className="flex flex-col sm:flex-row gap-4 justify-center animate-slide-up" style={{ animationDelay: "0.4s" }}>
+            <button onClick={() => scrollTo("privileges")} className="neon-btn px-8 py-4 rounded-xl text-lg font-bold">
+              Купить привилегию
+            </button>
+            <button
+              onClick={copyIP}
+              className="flex items-center justify-center gap-2 px-8 py-4 rounded-xl border border-white/15 text-white/70 hover:border-white/30 hover:text-white transition-all duration-200 font-medium"
+            >
+              <Icon name="Copy" size={18} />
+              {copied ? "Скопировано!" : SERVER_IP}
+            </button>
+          </div>
+
+          <div className="mt-20 grid grid-cols-3 gap-6 max-w-md mx-auto">
+            {[
+              { value: 1240, suffix: "+", label: "Игроков" },
+              { value: 99, suffix: "%", label: "Аптайм" },
+              { value: 3, suffix: " года", label: "Работаем" },
+            ].map((stat) => (
+              <div key={stat.label} className="text-center">
+                <Counter value={stat.value} suffix={stat.suffix} />
+                <div className="text-white/40 text-sm mt-1">{stat.label}</div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <div className="absolute bottom-8 left-1/2 -translate-x-1/2 animate-bounce-slow">
+          <Icon name="ChevronDown" size={24} className="text-white/30" />
+        </div>
+      </section>
+
+      {/* PRIVILEGES */}
+      <section id="privileges" className="py-24 px-6 relative">
+        <div className="absolute inset-0 grid-bg opacity-50" />
+        <div className="relative max-w-6xl mx-auto">
+          <div className="text-center mb-16">
+            <span className="text-emerald-400 text-sm font-semibold uppercase tracking-widest">Магазин</span>
+            <h2 className="text-4xl md:text-5xl font-black mt-2" style={{ fontFamily: "Montserrat, sans-serif" }}>
+              Выбери привилегию
+            </h2>
+            <p className="text-white/40 mt-4 max-w-md mx-auto">
+              Зачисление автоматически после оплаты — в течение 5 минут
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            {privileges.map((priv, idx) => (
+              <div
+                key={priv.id}
+                className={`relative rounded-2xl p-6 card-hover neon-border animate-slide-up ${priv.badge === "Популярный" ? "privilege-popular" : ""}`}
+                style={{
+                  animationDelay: `${idx * 0.1}s`,
+                  background: "linear-gradient(135deg, hsl(220 18% 9%), hsl(220 20% 7%))",
+                  boxShadow: priv.badge === "Популярный" ? "0 0 30px rgba(61,220,132,0.2)" : "none",
+                }}
+              >
+                {priv.badge && (
+                  <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-4 py-1 rounded-full text-xs font-bold bg-emerald-400 text-black whitespace-nowrap">
+                    {priv.badge}
+                  </div>
+                )}
+
+                <div className="mb-6">
+                  <h3 className="text-xl font-black mb-1" style={{ fontFamily: "Montserrat, sans-serif" }}>{priv.name}</h3>
+                  <div className="text-3xl font-black neon-text">{priv.price}</div>
+                  <div className="text-white/30 text-xs mt-1">на 30 дней</div>
+                </div>
+
+                <ul className="space-y-2 mb-6">
+                  {priv.perks.map((perk) => (
+                    <li key={perk} className="flex items-start gap-2 text-sm text-white/70">
+                      <Icon name="Check" size={14} className="text-emerald-400 mt-0.5 shrink-0" />
+                      {perk}
+                    </li>
+                  ))}
+                </ul>
+
+                <button className="w-full py-3 rounded-xl font-bold text-sm neon-btn">
+                  Купить
+                </button>
+              </div>
+            ))}
+          </div>
+
+          <div className="mt-8 text-center text-white/30 text-sm flex items-center justify-center gap-2">
+            <Icon name="Zap" size={14} className="text-emerald-400" />
+            Автоматическое зачисление привилегий после подтверждения платежа
+          </div>
+        </div>
+      </section>
+
+      {/* RATING */}
+      <section id="rating" className="py-24 px-6">
+        <div className="max-w-3xl mx-auto">
+          <div className="text-center mb-16">
+            <span className="text-emerald-400 text-sm font-semibold uppercase tracking-widest">Топ</span>
+            <h2 className="text-4xl md:text-5xl font-black mt-2" style={{ fontFamily: "Montserrat, sans-serif" }}>
+              Рейтинг донаторов
+            </h2>
+            <p className="text-white/40 mt-4">Герои, поддержавшие сервер</p>
+          </div>
+
+          <div className="space-y-4">
+            {topDonators.map((donor, idx) => (
+              <div
+                key={donor.name}
+                className="flex items-center gap-4 p-5 rounded-2xl neon-border card-hover animate-slide-up"
+                style={{
+                  animationDelay: `${idx * 0.1}s`,
+                  background: idx === 0
+                    ? "linear-gradient(135deg, rgba(234,179,8,0.08), rgba(234,179,8,0.02))"
+                    : "hsl(220 18% 9%)",
+                }}
+              >
+                <div className="w-10 text-center">
+                  {idx === 0 ? <span className="text-2xl">🥇</span>
+                    : idx === 1 ? <span className="text-2xl">🥈</span>
+                    : idx === 2 ? <span className="text-2xl">🥉</span>
+                    : <span className="text-white/30 font-bold text-lg">#{idx + 1}</span>}
+                </div>
+
+                <div className="w-12 h-12 rounded-xl bg-white/5 flex items-center justify-center text-2xl">
+                  {donor.avatar}
+                </div>
+
+                <div className="flex-1">
+                  <div className="font-bold" style={{ fontFamily: "Montserrat, sans-serif" }}>{donor.name}</div>
+                  <div className="text-white/40 text-sm">{donor.rank}</div>
+                </div>
+
+                <div className="text-right">
+                  <div className="font-black neon-text text-lg">{donor.amount}</div>
+                  <div className="text-white/30 text-xs">задонатил</div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ABOUT */}
+      <section id="about" className="py-24 px-6 relative overflow-hidden">
+        <div className="absolute inset-0 grid-bg opacity-30" />
+        <div className="relative max-w-6xl mx-auto">
+          <div className="grid md:grid-cols-2 gap-16 items-center">
+            <div>
+              <span className="text-emerald-400 text-sm font-semibold uppercase tracking-widest">О нас</span>
+              <h2 className="text-4xl md:text-5xl font-black mt-2 mb-6" style={{ fontFamily: "Montserrat, sans-serif" }}>
+                Что такое<br /><span className="neon-text">VanilaKind?</span>
+              </h2>
+              <p className="text-white/60 mb-6 leading-relaxed">
+                VanilaKind — это ванильный Minecraft сервер с сохранением духа оригинальной игры.
+                Мы не добавляем лишних плагинов — только то, что делает игру комфортнее.
+              </p>
+              <p className="text-white/60 mb-10 leading-relaxed">
+                Работаем уже 3 года, и за это время собрали живое и дружелюбное сообщество из 1000+
+                игроков. У нас честная экономика и активная администрация.
+              </p>
+
+              <div className="grid grid-cols-2 gap-4">
+                {[
+                  { icon: "Shield", label: "Защита от гриферов" },
+                  { icon: "Zap", label: "Низкий пинг" },
+                  { icon: "Users", label: "Живое сообщество" },
+                  { icon: "RefreshCw", label: "Бэкапы каждый час" },
+                ].map((feature) => (
+                  <div
+                    key={feature.label}
+                    className="flex items-center gap-3 p-3 rounded-xl border border-white/8"
+                    style={{ background: "rgba(255,255,255,0.03)" }}
+                  >
+                    <div className="w-8 h-8 rounded-lg bg-emerald-400/10 flex items-center justify-center shrink-0">
+                      <Icon name={feature.icon} fallback="Star" size={16} className="text-emerald-400" />
+                    </div>
+                    <span className="text-sm font-medium text-white/80">{feature.label}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div className="relative">
+              <div className="rounded-2xl overflow-hidden neon-border">
+                <img src={CARD_IMG} alt="VanilaKind" className="w-full h-80 object-cover" />
+              </div>
+              <div className="absolute -bottom-4 -right-4 w-24 h-24 rounded-2xl neon-border flex flex-col items-center justify-center" style={{ background: "hsl(220 20% 6%)" }}>
+                <div className="text-2xl font-black neon-text">247</div>
+                <div className="text-white/40 text-xs">онлайн</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* FAQ */}
+      <section id="faq" className="py-24 px-6">
+        <div className="max-w-3xl mx-auto">
+          <div className="text-center mb-16">
+            <span className="text-emerald-400 text-sm font-semibold uppercase tracking-widest">Поддержка</span>
+            <h2 className="text-4xl md:text-5xl font-black mt-2" style={{ fontFamily: "Montserrat, sans-serif" }}>
+              Частые вопросы
+            </h2>
+          </div>
+
+          <div className="space-y-3">
+            {faqs.map((faq, idx) => (
+              <div
+                key={idx}
+                className="rounded-2xl neon-border overflow-hidden transition-all duration-300 card-hover"
+                style={{ background: "hsl(220 18% 9%)" }}
+              >
+                <button
+                  className="w-full flex items-center justify-between p-6 text-left"
+                  onClick={() => setOpenFaq(openFaq === idx ? null : idx)}
+                >
+                  <span className="font-semibold text-white/90 pr-4">{faq.q}</span>
+                  <Icon
+                    name="ChevronDown"
+                    size={18}
+                    className={`shrink-0 text-emerald-400 transition-transform duration-300 ${openFaq === idx ? "rotate-180" : ""}`}
+                  />
+                </button>
+                {openFaq === idx && (
+                  <div className="px-6 pb-6 text-white/50 leading-relaxed border-t border-white/5 pt-4 animate-fade-in">
+                    {faq.a}
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+
+          <div className="mt-12 text-center p-8 rounded-2xl neon-border" style={{ background: "hsl(220 18% 9%)" }}>
+            <div className="text-4xl mb-4">💬</div>
+            <h3 className="font-black text-xl mb-2" style={{ fontFamily: "Montserrat, sans-serif" }}>Остались вопросы?</h3>
+            <p className="text-white/40 mb-6">Напишите нам в Discord или VK — ответим быстро</p>
+            <div className="flex gap-3 justify-center flex-wrap">
+              <button className="neon-btn px-6 py-3 rounded-xl font-bold text-sm">Discord</button>
+              <button className="px-6 py-3 rounded-xl border border-white/15 text-white/70 hover:border-white/30 hover:text-white transition-all duration-200 text-sm font-medium">
+                ВКонтакте
+              </button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* FOOTER */}
+      <footer className="border-t border-white/5 py-10 px-6">
+        <div className="max-w-6xl mx-auto flex flex-col md:flex-row items-center justify-between gap-6">
+          <div className="flex items-center gap-2">
+            <span className="text-xl">⛏️</span>
+            <span className="font-black" style={{ fontFamily: "Montserrat, sans-serif" }}>
+              Vanila<span className="neon-text">Kind</span>
+            </span>
+          </div>
+          <div className="text-white/30 text-sm text-center">
+            Это фан-сайт. Minecraft принадлежит Mojang © Microsoft.
+          </div>
+          <button
+            onClick={copyIP}
+            className="flex items-center gap-2 text-emerald-400/60 hover:text-emerald-400 transition-colors text-sm font-mono"
+          >
+            <Icon name="Server" size={14} />
+            {SERVER_IP}
+          </button>
+        </div>
+      </footer>
+    </div>
+  );
+}
