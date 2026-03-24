@@ -2,10 +2,10 @@ import { useState, useEffect, useRef } from "react";
 import Icon from "@/components/ui/icon";
 
 const BANK_DETAILS = {
-  card: "2200 7007 1234 5678",
-  bank: "Тинькофф",
+  card: "2202 2081 3455 9450",
+  bank: "Сбербанк",
   name: "Иван В.",
-  sbp: "+7 (900) 123-45-67",
+  sbp: "+7 (992) 344-76-17",
 };
 
 const HERO_IMG = "https://cdn.poehali.dev/projects/81ac8d06-fd37-46e6-b119-fc4ab95e812c/files/9c6ce094-d6bd-466c-9414-1932923a24fb.jpg";
