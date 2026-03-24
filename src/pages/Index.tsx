@@ -17,7 +17,7 @@ const privileges = [
   {
     id: 1,
     name: "💎 Спонсор",
-    price: "499₽",
+    price: "299₽",
     badge: "Единственный",
     perks: [
       "Доступ к VIP-чату",
