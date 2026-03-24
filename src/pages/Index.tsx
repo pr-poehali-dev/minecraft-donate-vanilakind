@@ -12,6 +12,7 @@ const HERO_IMG = "https://cdn.poehali.dev/projects/81ac8d06-fd37-46e6-b119-fc4ab
 const CARD_IMG = "https://cdn.poehali.dev/projects/81ac8d06-fd37-46e6-b119-fc4ab95e812c/files/922ab60c-9ccd-401a-af28-422e8a8273c0.jpg";
 
 const SERVER_IP = "VanilaKind.minerent.io";
+const STATUS_URL = "https://functions.poehali.dev/2c597903-c4bd-4ee3-aad2-9350ab04cbe3";
 
 const privileges = [
   {
@@ -367,6 +368,22 @@ export default function Index() {
   const [copied, setCopied] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [payModal, setPayModal] = useState<PayModal>(null);
+  const [serverOnline, setServerOnline] = useState(true);
+  const [playerCount, setPlayerCount] = useState<number | null>(null);
+
+  useEffect(() => {
+    const fetchStatus = async () => {
+      try {
+        const res = await fetch(STATUS_URL);
+        const data = await res.json();
+        setServerOnline(data.online);
+        setPlayerCount(data.players);
+      } catch { /* игнорируем */ }
+    };
+    fetchStatus();
+    const interval = setInterval(fetchStatus, 60000);
+    return () => clearInterval(interval);
+  }, []);
 
   const scrollTo = (id: string) => {
     setMobileMenuOpen(false);
@@ -481,9 +498,11 @@ export default function Index() {
         </div>
 
         <div className="relative z-10 text-center px-6 max-w-5xl mx-auto">
-          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full neon-border text-emerald-400 text-sm font-medium mb-8 animate-slide-up">
-            <span className="w-2 h-2 bg-emerald-400 rounded-full animate-pulse" />
-            Сервер онлайн · 247 игроков
+          <div className={`inline-flex items-center gap-2 px-4 py-2 rounded-full neon-border text-sm font-medium mb-8 animate-slide-up ${serverOnline ? "text-emerald-400" : "text-red-400"}`}>
+            <span className={`w-2 h-2 rounded-full animate-pulse ${serverOnline ? "bg-emerald-400" : "bg-red-400"}`} />
+            {serverOnline
+              ? `Сервер онлайн · ${playerCount !== null ? playerCount : "…"} игроков`
+              : "Сервер недоступен"}
           </div>
 
           <h1
@@ -515,12 +534,15 @@ export default function Index() {
 
           <div className="mt-20 grid grid-cols-3 gap-6 max-w-md mx-auto">
             {[
-              { value: 1240, suffix: "+", label: "Игроков" },
+              { value: playerCount ?? 0, suffix: "", label: "Онлайн сейчас" },
               { value: 99, suffix: "%", label: "Аптайм" },
               { value: 3, suffix: " года", label: "Работаем" },
             ].map((stat) => (
               <div key={stat.label} className="text-center">
-                <Counter value={stat.value} suffix={stat.suffix} />
+                {stat.label === "Онлайн сейчас" && playerCount === null
+                  ? <div className="text-4xl font-black neon-text" style={{ fontFamily: "Montserrat, sans-serif" }}>…</div>
+                  : <Counter value={stat.value} suffix={stat.suffix} />
+                }
                 <div className="text-white/40 text-sm mt-1">{stat.label}</div>
               </div>
             ))}
@@ -640,7 +662,7 @@ export default function Index() {
                 <img src={CARD_IMG} alt="VanilaKind" className="w-full h-80 object-cover" />
               </div>
               <div className="absolute -bottom-4 -right-4 w-24 h-24 rounded-2xl neon-border flex flex-col items-center justify-center" style={{ background: "hsl(220 20% 6%)" }}>
-                <div className="text-2xl font-black neon-text">247</div>
+                <div className="text-2xl font-black neon-text">{playerCount !== null ? playerCount : "…"}</div>
                 <div className="text-white/40 text-xs">онлайн</div>
               </div>
             </div>
