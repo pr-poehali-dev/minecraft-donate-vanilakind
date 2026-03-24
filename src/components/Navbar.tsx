@@ -1,6 +1,6 @@
 import Icon from "@/components/ui/icon";
 
-const SERVER_IP = "play.vanilakind.ru";
+const SERVER_IP = "VanilaKind.minerent.io";
 
 const NAV_ITEMS = [
   { id: "home", label: "Главная" },

@@ -11,7 +11,7 @@ const BANK_DETAILS = {
 const HERO_IMG = "https://cdn.poehali.dev/projects/81ac8d06-fd37-46e6-b119-fc4ab95e812c/files/9c6ce094-d6bd-466c-9414-1932923a24fb.jpg";
 const CARD_IMG = "https://cdn.poehali.dev/projects/81ac8d06-fd37-46e6-b119-fc4ab95e812c/files/922ab60c-9ccd-401a-af28-422e8a8273c0.jpg";
 
-const SERVER_IP = "play.vanilakind.ru";
+const SERVER_IP = "VanilaKind.minerent.io";
 
 const privileges = [
   {
