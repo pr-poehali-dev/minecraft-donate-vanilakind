@@ -16,56 +16,15 @@ const SERVER_IP = "VanilaKind.minerent.io";
 const privileges = [
   {
     id: 1,
-    name: "⚡ Starter",
-    price: "99₽",
-    badge: null,
-    perks: [
-      "Цветной ник в чате",
-      "2 домашних точки",
-      "Приоритетный вход",
-      "Префикс [Starter]",
-    ],
-  },
-  {
-    id: 2,
-    name: "🔥 Pro",
-    price: "249₽",
-    badge: "Популярный",
-    perks: [
-      "Всё из Starter",
-      "5 домашних точек",
-      "Fly в мирном режиме",
-      "Кит раз в 3 дня",
-      "Доступ к /back",
-    ],
-  },
-  {
-    id: 3,
-    name: "💎 VIP",
+    name: "💎 Спонсор",
     price: "499₽",
-    badge: null,
+    badge: "Единственный",
     perks: [
-      "Всё из Pro",
-      "15 домашних точек",
-      "Fly везде",
-      "Кит раз в сутки",
-      "Частная ферма мобов",
-      "Ник любым цветом",
-    ],
-  },
-  {
-    id: 4,
-    name: "👑 Legend",
-    price: "999₽",
-    badge: "Топ",
-    perks: [
-      "Всё из VIP",
-      "Безлимит точек",
-      "Творческий режим",
-      "Кит каждые 12 ч",
-      "Спец. зона с ресурсами",
-      "Значок в Discord",
-      "Персональный варп",
+      "Доступ к VIP-чату",
+      "Приоритетный вход на сервер",
+      "Прямой контакт с администрацией",
+      "Цветной ник в табе и чате",
+      "Роль Спонсора в Discord",
     ],
   },
 ];
@@ -93,13 +52,7 @@ const faqs = [
   },
 ];
 
-const topDonators = [
-  { name: "Steve_King", amount: "4 820₽", rank: "👑 Legend", avatar: "👾" },
-  { name: "DiamondGirl", amount: "3 500₽", rank: "💎 VIP", avatar: "💎" },
-  { name: "CreeperBoss", amount: "2 100₽", rank: "🔥 Pro", avatar: "🔥" },
-  { name: "NightWalker", amount: "1 750₽", rank: "💎 VIP", avatar: "🌙" },
-  { name: "SkyBuilder", amount: "1 200₽", rank: "🔥 Pro", avatar: "🏗️" },
-];
+
 
 function Particle({ style }: { style: React.CSSProperties }) {
   return (
@@ -451,8 +404,7 @@ export default function Index() {
         <div className="hidden md:flex items-center gap-1">
           {[
             { id: "home", label: "Главная" },
-            { id: "privileges", label: "Донат" },
-            { id: "rating", label: "Рейтинг" },
+            { id: "privileges", label: "Спонсор" },
             { id: "about", label: "О сервере" },
             { id: "faq", label: "FAQ" },
           ].map((item) => (
@@ -492,8 +444,7 @@ export default function Index() {
         <div className="fixed inset-0 z-40 pt-20 bg-black/95 backdrop-blur-xl flex flex-col items-center gap-6 p-6">
           {[
             { id: "home", label: "Главная" },
-            { id: "privileges", label: "Донат" },
-            { id: "rating", label: "Рейтинг" },
+            { id: "privileges", label: "Спонсор" },
             { id: "about", label: "О сервере" },
             { id: "faq", label: "FAQ" },
           ].map((item) => (
@@ -551,7 +502,7 @@ export default function Index() {
 
           <div className="flex flex-col sm:flex-row gap-4 justify-center animate-slide-up" style={{ animationDelay: "0.4s" }}>
             <button onClick={() => scrollTo("privileges")} className="neon-btn px-8 py-4 rounded-xl text-lg font-bold">
-              Купить привилегию
+              Стать спонсором
             </button>
             <button
               onClick={copyIP}
@@ -584,112 +535,62 @@ export default function Index() {
       {/* PRIVILEGES */}
       <section id="privileges" className="py-24 px-6 relative">
         <div className="absolute inset-0 grid-bg opacity-50" />
-        <div className="relative max-w-6xl mx-auto">
+        <div className="relative max-w-2xl mx-auto">
           <div className="text-center mb-16">
-            <span className="text-emerald-400 text-sm font-semibold uppercase tracking-widest">Магазин</span>
+            <span className="text-emerald-400 text-sm font-semibold uppercase tracking-widest">Поддержка</span>
             <h2 className="text-4xl md:text-5xl font-black mt-2" style={{ fontFamily: "Montserrat, sans-serif" }}>
-              Выбери привилегию
+              Стать спонсором
             </h2>
             <p className="text-white/40 mt-4 max-w-md mx-auto">
-              Зачисление автоматически после оплаты — в течение 5 минут
+              Поддержи сервер и получи эксклюзивные привилегии
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {privileges.map((priv, idx) => (
-              <div
-                key={priv.id}
-                className={`relative rounded-2xl p-6 card-hover neon-border animate-slide-up ${priv.badge === "Популярный" ? "privilege-popular" : ""}`}
-                style={{
-                  animationDelay: `${idx * 0.1}s`,
-                  background: "linear-gradient(135deg, hsl(220 18% 9%), hsl(220 20% 7%))",
-                  boxShadow: priv.badge === "Популярный" ? "0 0 30px rgba(61,220,132,0.2)" : "none",
-                }}
-              >
-                {priv.badge && (
-                  <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-4 py-1 rounded-full text-xs font-bold bg-emerald-400 text-black whitespace-nowrap">
-                    {priv.badge}
-                  </div>
-                )}
-
-                <div className="mb-6">
-                  <h3 className="text-xl font-black mb-1" style={{ fontFamily: "Montserrat, sans-serif" }}>{priv.name}</h3>
-                  <div className="text-3xl font-black neon-text">{priv.price}</div>
-                  <div className="text-white/30 text-xs mt-1">на 30 дней</div>
-                </div>
-
-                <ul className="space-y-2 mb-6">
-                  {priv.perks.map((perk) => (
-                    <li key={perk} className="flex items-start gap-2 text-sm text-white/70">
-                      <Icon name="Check" size={14} className="text-emerald-400 mt-0.5 shrink-0" />
-                      {perk}
-                    </li>
-                  ))}
-                </ul>
-
-                <button
-                  onClick={() => setPayModal({ priv })}
-                  className="w-full py-3 rounded-xl font-bold text-sm neon-btn flex items-center justify-center gap-2"
-                >
-                  <Icon name="CreditCard" size={15} />
-                  Купить
-                </button>
+          {privileges.map((priv) => (
+            <div
+              key={priv.id}
+              className="relative rounded-3xl p-8 card-hover animate-slide-up"
+              style={{
+                background: "linear-gradient(135deg, hsl(220 18% 10%), hsl(220 20% 8%))",
+                border: "1px solid rgba(61,220,132,0.35)",
+                boxShadow: "0 0 60px rgba(61,220,132,0.15), 0 20px 40px rgba(0,0,0,0.4)",
+              }}
+            >
+              <div className="absolute -top-4 left-1/2 -translate-x-1/2 px-6 py-1.5 rounded-full text-xs font-bold bg-emerald-400 text-black whitespace-nowrap tracking-wider uppercase">
+                {priv.badge}
               </div>
-            ))}
-          </div>
 
-          <div className="mt-8 text-center text-white/30 text-sm flex items-center justify-center gap-2">
+              <div className="text-center mb-8 pt-2">
+                <div className="text-6xl mb-4">💎</div>
+                <h3 className="text-3xl font-black mb-2" style={{ fontFamily: "Montserrat, sans-serif" }}>{priv.name}</h3>
+                <div className="text-5xl font-black neon-text mb-1">{priv.price}</div>
+                <div className="text-white/30 text-sm">в месяц</div>
+              </div>
+
+              <ul className="space-y-4 mb-8 max-w-sm mx-auto">
+                {priv.perks.map((perk) => (
+                  <li key={perk} className="flex items-center gap-3 text-white/80">
+                    <div className="w-6 h-6 rounded-full bg-emerald-400/15 flex items-center justify-center shrink-0">
+                      <Icon name="Check" size={13} className="text-emerald-400" />
+                    </div>
+                    <span className="text-sm font-medium">{perk}</span>
+                  </li>
+                ))}
+              </ul>
+
+              <button
+                onClick={() => setPayModal({ priv })}
+                className="w-full py-4 rounded-2xl font-bold text-base neon-btn flex items-center justify-center gap-2"
+              >
+                <Icon name="Heart" size={17} />
+                Стать спонсором
+              </button>
+            </div>
+          ))}
+
+          <div className="mt-6 text-center text-white/30 text-sm flex items-center justify-center gap-2">
             <Icon name="Zap" size={14} className="text-emerald-400" />
-            Автоматическое зачисление привилегий после подтверждения платежа
-          </div>
-        </div>
-      </section>
-
-      {/* RATING */}
-      <section id="rating" className="py-24 px-6">
-        <div className="max-w-3xl mx-auto">
-          <div className="text-center mb-16">
-            <span className="text-emerald-400 text-sm font-semibold uppercase tracking-widest">Топ</span>
-            <h2 className="text-4xl md:text-5xl font-black mt-2" style={{ fontFamily: "Montserrat, sans-serif" }}>
-              Рейтинг донаторов
-            </h2>
-            <p className="text-white/40 mt-4">Герои, поддержавшие сервер</p>
-          </div>
-
-          <div className="space-y-4">
-            {topDonators.map((donor, idx) => (
-              <div
-                key={donor.name}
-                className="flex items-center gap-4 p-5 rounded-2xl neon-border card-hover animate-slide-up"
-                style={{
-                  animationDelay: `${idx * 0.1}s`,
-                  background: idx === 0
-                    ? "linear-gradient(135deg, rgba(234,179,8,0.08), rgba(234,179,8,0.02))"
-                    : "hsl(220 18% 9%)",
-                }}
-              >
-                <div className="w-10 text-center">
-                  {idx === 0 ? <span className="text-2xl">🥇</span>
-                    : idx === 1 ? <span className="text-2xl">🥈</span>
-                    : idx === 2 ? <span className="text-2xl">🥉</span>
-                    : <span className="text-white/30 font-bold text-lg">#{idx + 1}</span>}
-                </div>
-
-                <div className="w-12 h-12 rounded-xl bg-white/5 flex items-center justify-center text-2xl">
-                  {donor.avatar}
-                </div>
-
-                <div className="flex-1">
-                  <div className="font-bold" style={{ fontFamily: "Montserrat, sans-serif" }}>{donor.name}</div>
-                  <div className="text-white/40 text-sm">{donor.rank}</div>
-                </div>
-
-                <div className="text-right">
-                  <div className="font-black neon-text text-lg">{donor.amount}</div>
-                  <div className="text-white/30 text-xs">задонатил</div>
-                </div>
-              </div>
-            ))}
+            Привилегии выдаются вручную в течение часа после оплаты
           </div>
         </div>
       </section>

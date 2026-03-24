@@ -4,8 +4,7 @@ const SERVER_IP = "VanilaKind.minerent.io";
 
 const NAV_ITEMS = [
   { id: "home", label: "Главная" },
-  { id: "privileges", label: "Донат" },
-  { id: "rating", label: "Рейтинг" },
+  { id: "privileges", label: "Спонсор" },
   { id: "about", label: "О сервере" },
   { id: "faq", label: "FAQ" },
 ];
